@@ -1,101 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Study Tracker - Advanced Architecture</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f9;
-      color: #333;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      color: #2c3e50;
-    }
-    .module {
-      background: #fff;
-      margin-bottom: 20px;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .topic {
-      display: flex;
-      align-items: center;
-      margin: 8px 0;
-    }
-    input[type="checkbox"] {
-      margin-right: 10px;
-    }
-    .important {
-      color: #e74c3c;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ADV ARCH & PARALLEL — Study Tracker</title>
+<style>
+  :root{
+    --bg:#0f1115;
+    --card:#171a21;
+    --muted:#aab2c0;
+    --text:#e6e6e6;
+    --accent:#35d0a5;
+    --accent-weak:#244f43;
+    --star:#ffb74d;
+    --danger:#ff6b6b;
+    --ring:#2a2f3a;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.45;
+  }
+  header{
+    position:sticky; top:0; z-index:5;
+    background:linear-gradient(180deg, #0f1115 70%, transparent);
+    padding:18px 16px 8px;
+    border-bottom:1px solid #1b1f27;
+  }
+  .wrap{max-width:980px; margin:0 auto; padding: 0 12px;}
+  h1{margin:0 0 8px; font-size:1.35rem; letter-spacing:.2px}
+  .subtitle{color:var(--muted); font-size:.95rem}
+
+  /* Progress */
+  .progress{
+    margin:12px 0 6px;
+    background:#13161c;
+    border:1px solid var(--ring);
+    border-radius:10px;
+    height:14px;
+    overflow:hidden;
+  }
+  .bar{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, var(--accent), #55e7bd);
+    transition:width .25s ease;
+  }
+  .pct{font-variant-numeric: tabular-nums; font-weight:600}
+
+  /* Controls */
+  .controls{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:10px}
+  .pill{
+    background:#13161c; border:1px solid var(--ring);
+    padding:8px 10px; border-radius:999px; color:var(--muted); font-size:.9rem
+  }
+  .legend{display:flex; align-items:center; gap:14px}
+  .dot{width:10px; height:10px; border-radius:50%}
+  .dot.imp{background:var(--star)}
+  .dot.norm{background:#556}
+
+  /* Modules */
+  section.module{
+    background:var(--card);
+    border:1px solid var(--ring);
+    border-radius:14px;
+    padding:14px;
+    margin:14px auto;
+  }
+  section.module h2{
+    margin:4px 0 10px;
+    font-size:1.15rem;
+    display:flex; align-items:center; gap:8px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap:8px;
+  }
+  label.topic{
+    display:flex; gap:10px; align-items:flex-start;
+    padding:10px 12px;
+    background:#11141a;
+    border:1px solid #232833;
+    border-radius:10px;
+    cursor:pointer;
+    transition: border-color .2s ease, background .2s ease;
+  }
+  label.topic:hover{border-color:#2f3644}
+  .topic .star{margin-left:auto; color:var(--star); font-weight:700}
+  .topic small{display:block; color:var(--muted); margin-top:2px}
+
+  /* Checkbox styling (keeps native but nicer) */
+  input[type="checkbox"]{
+    width:18px; height:18px; margin-top:1px;
+    accent-color: var(--accent);
+    flex:0 0 auto;
+  }
+
+  /* Footer */
+  footer{color:var(--muted); font-size:.85rem; padding:16px 12px 40px}
+</style>
 </head>
 <body>
+<header>
+  <div class="wrap">
+    <h1>19-202-0702 — Advanced Architecture & Parallel Processing</h1>
+    <div class="subtitle">Offline tracker • Dark mode • Auto-save (localStorage) • ⭐ marks important topics</div>
+    <div class="progress"><div id="bar" class="bar"></div></div>
+    <div class="controls">
+      <span class="pill"><span class="pct" id="count">0</span> / <span id="total">0</span> completed (<span class="pct" id="percent">0%</span>)</span>
+      <span class="pill legend">
+        <span class="dot imp"></span> important
+        <span class="dot norm"></span> regular
+      </span>
+    </div>
+  </div>
+</header>
 
-<h1>📘 Study Tracker - Advanced Architecture & Parallel Processing</h1>
+<main class="wrap" id="content">
 
-<!-- Module 1 -->
-<div class="module">
-  <h2>Module I – Parallel Computer Models</h2>
-  <div class="topic"><input type="checkbox">Multiprocessors and Multicomputers ⭐</div>
-  <div class="topic"><input type="checkbox">Flynn’s Classification ⭐</div>
-  <div class="topic"><input type="checkbox">Conditions of Parallelism (Bernstein) ⭐</div>
-  <div class="topic"><input type="checkbox">Omega Network</div>
-  <div class="topic"><input type="checkbox">Program Partitioning & Scheduling</div>
-  <div class="topic"><input type="checkbox">Performance Metrics (Speedup, Amdahl, Gustafson) ⭐</div>
-</div>
+  <!-- MODULE I -->
+  <section class="module" data-module="1">
+    <h2>Module I — Parallel Computer Models & Scalable Performance</h2>
+    <div class="grid">
+      <!-- Parallel computer models -->
+      <label class="topic"><input type="checkbox" data-id="m1_state">
+        <div><b>State of Computing</b><small>evolution & trends motivating parallelism</small></div>
+        <span class="star">⭐</span></label>
 
-<!-- Module 2 -->
-<div class="module">
-  <h2>Module II – Processor & Memory Hierarchy</h2>
-  <div class="topic"><input type="checkbox">Memory Hierarchy ⭐</div>
-  <div class="topic"><input type="checkbox">Cache Memory & Numerical Problems ⭐</div>
-  <div class="topic"><input type="checkbox">Cache Coherence Protocols (MSI, MESI) ⭐</div>
-  <div class="topic"><input type="checkbox">CISC vs RISC ⭐</div>
-  <div class="topic"><input type="checkbox">Virtual Memory, TLB</div>
-  <div class="topic"><input type="checkbox">Consistency Models (Sequential, Weak) ⭐</div>
-</div>
+      <label class="topic"><input type="checkbox" data-id="m1_multi">
+        <div><b>Multiprocessors & Multicomputers</b></div>
+        <span class="star">⭐</span></label>
 
-<!-- Module 3 -->
-<div class="module">
-  <h2>Module III – Pipelining & Multiprocessors</h2>
-  <div class="topic"><input type="checkbox">Linear & Non-Linear Pipelines</div>
-  <div class="topic"><input type="checkbox">Instruction & Arithmetic Pipeline Design ⭐</div>
-  <div class="topic"><input type="checkbox">Pipeline Hazards & Operand Forwarding ⭐</div>
-  <div class="topic"><input type="checkbox">Cache Coherence & Synchronization Mechanisms</div>
-  <div class="topic"><input type="checkbox">Lamport’s Definition of Consistency ⭐</div>
-  <div class="topic"><input type="checkbox">Message Passing (Sync & Async) ⭐</div>
-</div>
+      <label class="topic"><input type="checkbox" data-id="m1_multivector_simd">
+        <div><b>Multivector & SIMD Computers</b></div>
+      </label>
 
-<!-- Module 4 -->
-<div class="module">
-  <h2>Module IV – Parallel Programming & ILP</h2>
-  <div class="topic"><input type="checkbox">Parallel Programming Models ⭐</div>
-  <div class="topic"><input type="checkbox">Instruction Level Parallelism ⭐</div>
-  <div class="topic"><input type="checkbox">Tomasulo’s Algorithm ⭐</div>
-  <div class="topic"><input type="checkbox">Branch Prediction</div>
-  <div class="topic"><input type="checkbox">Operand Forwarding ⭐</div>
-  <div class="topic"><input type="checkbox">Thread Level Parallelism (TLP)</div>
-</div>
+      <label class="topic"><input type="checkbox" data-id="m1_pram_vlsi">
+        <div><b>PRAM & VLSI Models</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m1_arch_tracks">
+        <div><b>Architectural Development Tracks</b></div>
+      </label>
+
+      <!-- Program & network properties -->
+      <label class="topic"><input type="checkbox" data-id="m1_conditions">
+        <div><b>Conditions of Parallelism</b></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m1_bernstein">
+        <div><b>Bernstein’s Condition</b></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m1_partition_schedule">
+        <div><b>Program Partitioning & Scheduling</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m1_flow">
+        <div><b>Program Flow Mechanisms</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m1_interconnects">
+        <div><b>System Interconnect Architectures</b><small>bus, crossbar, multistage (omega, banyan)</small></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m1_omega">
+        <div><b>Omega Network Problem</b></div>
+        <span class="star">⭐</span></label>
+
+      <!-- Scalable performance -->
+      <label class="topic"><input type="checkbox" data-id="m1_metrics">
+        <div><b>Performance Metrics & Measures</b><small>speedup, efficiency, throughput, latency</small></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m1_laws">
+        <div><b>Speedup Performance Laws</b><small>Amdahl’s law, Gustafson’s law</small></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m1_scalability">
+        <div><b>Scalability Analysis & Approaches</b></div>
+      </label>
+
+      <!-- Extras from your list -->
+      <label class="topic"><input type="checkbox" data-id="m1_flynn">
+        <div><b>Flynn’s Classification</b><small>SISD, SIMD, MISD, MIMD</small></div>
+        <span class="star">⭐</span></label>
+    </div>
+  </section>
+
+  <!-- MODULE II -->
+  <section class="module" data-module="2">
+    <h2>Module II — Processors & Memory Hierarchy</h2>
+    <div class="grid">
+      <label class="topic"><input type="checkbox" data-id="m2_advproc">
+        <div><b>Advanced Processor Technology</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m2_superscalar_vector">
+        <div><b>Superscalar & Vector Processors</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m2_memory_hierarchy">
+        <div><b>Memory Hierarchy Technology</b><small>registers → cache → main → disk</small></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m2_virtualmem">
+        <div><b>Virtual Memory Technology</b><small>paging, segmentation, TLB</small></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m2_bus">
+        <div><b>Bus Systems</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m2_cache_org">
+        <div><b>Cache Memory Organizations</b><small>mapping, write policies</small></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m2_shared_mem_org">
+        <div><b>Shared-Memory Organizations</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m2_consistency">
+        <div><b>Consistency Models</b><small>sequential, weak, release</small></div>
+        <span class="star">⭐</span></label>
+
+      <!-- Your list additions -->
+      <label class="topic"><input type="checkbox" data-id="m2_cache_coherence">
+        <div><b>Cache Coherence</b></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m2_protocols">
+        <div><b>Cache Coherence Protocols</b><small>MSI, MESI, MOESI, Dragon; invalidate vs update</small></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m2_cache_numericals">
+        <div><b>Cache-Related Numerical Problems</b></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m2_cisc_risc">
+        <div><b>CISC vs RISC</b></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m2_vliw_vector">
+        <div><b>VLIW & Vector Processor Basics</b></div>
+      </label>
+    </div>
+  </section>
+
+  <!-- MODULE III -->
+  <section class="module" data-module="3">
+    <h2>Module III — Pipelining, Multiprocessors & Communication</h2>
+    <div class="grid">
+      <!-- Pipelining & superscalar techniques -->
+      <label class="topic"><input type="checkbox" data-id="m3_linear">
+        <div><b>Linear Pipeline Processors</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m3_nonlinear">
+        <div><b>Nonlinear Pipeline Processors</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m3_instr_pipe">
+        <div><b>Instruction Pipeline Design</b></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m3_arith_pipe">
+        <div><b>Arithmetic Pipeline Design</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m3_hazards">
+        <div><b>Pipeline Hazards</b><small>structural, data (RAW/WAR/WAW), control</small></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m3_operand_forward">
+        <div><b>Operand Forwarding</b></div>
+        <span class="star">⭐</span></label>
+
+      <!-- Multiprocessor & multicomputer -->
+      <label class="topic"><input type="checkbox" data-id="m3_mp_interconnects">
+        <div><b>Multiprocessor System Interconnects</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m3_sync_mech">
+        <div><b>Cache Coherence & Synchronization Mechanisms</b><small>locks, barriers, semaphores</small></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m3_lamport">
+        <div><b>Lamport’s Definition of Sequential Consistency</b></div>
+        <span class="star">⭐</span></label>
+
+      <!-- Message passing -->
+      <label class="topic"><input type="checkbox" data-id="m3_msg_sync">
+        <div><b>Message Passing — Synchronous</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m3_msg_async">
+        <div><b>Message Passing — Asynchronous</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m3_vector_principles">
+        <div><b>Vector Processing Principles</b></div>
+      </label>
+
+      <!-- Your extras -->
+      <label class="topic"><input type="checkbox" data-id="m3_dep_graph">
+        <div><b>Dependency Graph Problem</b></div>
+      </label>
+    </div>
+  </section>
+
+  <!-- MODULE IV -->
+  <section class="module" data-module="4">
+    <h2>Module IV — Parallel Programming & ILP</h2>
+    <div class="grid">
+      <label class="topic"><input type="checkbox" data-id="m4_models">
+        <div><b>Parallel Programming Models</b><small>shared memory, message passing, data-parallel, hybrid</small></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m4_lang_comp">
+        <div><b>Parallel Languages & Compilers</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m4_ilp_design">
+        <div><b>Instruction-Level Parallelism — Design Issues</b></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m4_typical_proc">
+        <div><b>Model of a Typical Processor</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m4_compiler_directed">
+        <div><b>Compiler-Directed ILP</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m4_operand_forwarding">
+        <div><b>Operand Forwarding (ILP context)</b></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m4_tomasulo">
+        <div><b>Tomasulo’s Algorithm (Dynamic Scheduling)</b></div>
+        <span class="star">⭐</span></label>
+
+      <label class="topic"><input type="checkbox" data-id="m4_branch_pred">
+        <div><b>Branch Prediction</b><small>static, dynamic, 1-bit/2-bit, BTB</small></div>
+      </label>
+
+      <label class="topic"><input type="checkbox" data-id="m4_tlp">
+        <div><b>Thread-Level Parallelism</b><small>multicore, SMT</small></div>
+      </label>
+
+      <!-- Your extra -->
+      <label class="topic"><input type="checkbox" data-id="m4_oops_parallel">
+        <div><b>Parallelism in OOPs</b><small>tasks, futures, actors; data vs task parallelism</small></div>
+      </label>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  Tip: Add this page to your phone’s home screen for an app-like feel. Progress is saved locally on this device.
+</footer>
 
 <script>
-  // Save and load checkbox states using localStorage
-  document.querySelectorAll('input[type="checkbox"]').forEach((checkbox, index) => {
-    // Load saved state
-    checkbox.checked = localStorage.getItem('topic_' + index) === 'true';
+  (function(){
+    const STORAGE_PREFIX = "advarch_tracker_v1_";
+    const checkboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-id]'));
+    const totalEl = document.getElementById('total');
+    const countEl = document.getElementById('count');
+    const percentEl = document.getElementById('percent');
+    const barEl = document.getElementById('bar');
 
-    // Save state when clicked
-    checkbox.addEventListener('change', () => {
-      localStorage.setItem('topic_' + index, checkbox.checked);
+    // Load saved states
+    checkboxes.forEach(cb=>{
+      const key = STORAGE_PREFIX + cb.dataset.id;
+      const saved = localStorage.getItem(key);
+      if(saved === "1"){ cb.checked = true; }
+      cb.addEventListener('change', ()=>{
+        localStorage.setItem(key, cb.checked ? "1":"0");
+        updateProgress();
+      });
     });
-  });
-</script>
 
+    function updateProgress(){
+      const total = checkboxes.length;
+      const done = checkboxes.filter(cb=>cb.checked).length;
+      const pct = total ? Math.round((done/total)*100) : 0;
+      totalEl.textContent = total;
+      countEl.textContent = done;
+      percentEl.textContent = pct + "%";
+      barEl.style.width = pct + "%";
+    }
+
+    updateProgress();
+  })();
+</script>
 </body>
 </html>
