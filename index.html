@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Study Tracker - Advanced Architecture</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .module {
+      background: #fff;
+      margin-bottom: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .topic {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+    }
+    input[type="checkbox"] {
+      margin-right: 10px;
+    }
+    .important {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📘 Study Tracker - Advanced Architecture & Parallel Processing</h1>
+
+<!-- Module 1 -->
+<div class="module">
+  <h2>Module I – Parallel Computer Models</h2>
+  <div class="topic"><input type="checkbox">Multiprocessors and Multicomputers ⭐</div>
+  <div class="topic"><input type="checkbox">Flynn’s Classification ⭐</div>
+  <div class="topic"><input type="checkbox">Conditions of Parallelism (Bernstein) ⭐</div>
+  <div class="topic"><input type="checkbox">Omega Network</div>
+  <div class="topic"><input type="checkbox">Program Partitioning & Scheduling</div>
+  <div class="topic"><input type="checkbox">Performance Metrics (Speedup, Amdahl, Gustafson) ⭐</div>
+</div>
+
+<!-- Module 2 -->
+<div class="module">
+  <h2>Module II – Processor & Memory Hierarchy</h2>
+  <div class="topic"><input type="checkbox">Memory Hierarchy ⭐</div>
+  <div class="topic"><input type="checkbox">Cache Memory & Numerical Problems ⭐</div>
+  <div class="topic"><input type="checkbox">Cache Coherence Protocols (MSI, MESI) ⭐</div>
+  <div class="topic"><input type="checkbox">CISC vs RISC ⭐</div>
+  <div class="topic"><input type="checkbox">Virtual Memory, TLB</div>
+  <div class="topic"><input type="checkbox">Consistency Models (Sequential, Weak) ⭐</div>
+</div>
+
+<!-- Module 3 -->
+<div class="module">
+  <h2>Module III – Pipelining & Multiprocessors</h2>
+  <div class="topic"><input type="checkbox">Linear & Non-Linear Pipelines</div>
+  <div class="topic"><input type="checkbox">Instruction & Arithmetic Pipeline Design ⭐</div>
+  <div class="topic"><input type="checkbox">Pipeline Hazards & Operand Forwarding ⭐</div>
+  <div class="topic"><input type="checkbox">Cache Coherence & Synchronization Mechanisms</div>
+  <div class="topic"><input type="checkbox">Lamport’s Definition of Consistency ⭐</div>
+  <div class="topic"><input type="checkbox">Message Passing (Sync & Async) ⭐</div>
+</div>
+
+<!-- Module 4 -->
+<div class="module">
+  <h2>Module IV – Parallel Programming & ILP</h2>
+  <div class="topic"><input type="checkbox">Parallel Programming Models ⭐</div>
+  <div class="topic"><input type="checkbox">Instruction Level Parallelism ⭐</div>
+  <div class="topic"><input type="checkbox">Tomasulo’s Algorithm ⭐</div>
+  <div class="topic"><input type="checkbox">Branch Prediction</div>
+  <div class="topic"><input type="checkbox">Operand Forwarding ⭐</div>
+  <div class="topic"><input type="checkbox">Thread Level Parallelism (TLP)</div>
+</div>
+
+<script>
+  // Save and load checkbox states using localStorage
+  document.querySelectorAll('input[type="checkbox"]').forEach((checkbox, index) => {
+    // Load saved state
+    checkbox.checked = localStorage.getItem('topic_' + index) === 'true';
+
+    // Save state when clicked
+    checkbox.addEventListener('change', () => {
+      localStorage.setItem('topic_' + index, checkbox.checked);
+    });
+  });
+</script>
+
+</body>
+</html>
